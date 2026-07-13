@@ -1,0 +1,12 @@
+torch>=2.3.0
+numpy>=1.26.4,<2.0.0
+PyYAML>=6.0.1
+tqdm>=4.66.0
+einops>=0.7.0
+transformers>=4.41.2,<4.45.0
+datasets>=2.19.0
+huggingface-hub>=0.23.0
+sacrebleu>=2.4.0
+rouge-score>=0.1.2
+wandb>=0.16.6
+muon-optimizer>=0.1.0

@@ -1,0 +1,25 @@
+# Exponential integrator (1 NFE/step)
+- sampling_method: exp
+  num_sampling_steps: [16]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: exp
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+# Exponential Heun 2nd-order (2 NFE/step)
+- sampling_method: exp_heun
+  num_sampling_steps: [16]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: exp_heun
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal

@@ -1,0 +1,23 @@
+- sampling_method: sde_ml
+  num_sampling_steps: [16]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  sde_gamma: 1.5
+  num_langevin: 2
+  time_schedule: logit_normal
+
+- sampling_method: sde_ml
+  num_sampling_steps: [16]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  sde_gamma: 1.5
+  num_langevin: 3
+  time_schedule: logit_normal
+
+- sampling_method: sde_ml
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  sde_gamma: 1.0
+  num_langevin: 2
+  time_schedule: logit_normal

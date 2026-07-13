@@ -1,0 +1,45 @@
+# 128-step annealing sweep: boundary behavior + extreme budget tests
+- sampling_method: sde_anneal
+  num_sampling_steps: [128]
+  cfgs: [1]
+  sde_gamma: 2.0
+  sde_gamma_end: 0.0
+  sde_anneal_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: sde_anneal
+  num_sampling_steps: [128]
+  cfgs: [1]
+  sde_gamma: 1.5
+  sde_gamma_end: 0.0
+  sde_anneal_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: sde_anneal
+  num_sampling_steps: [128]
+  cfgs: [1]
+  sde_gamma: 1.0
+  sde_gamma_end: 0.0
+  sde_anneal_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: sde_anneal
+  num_sampling_steps: [128]
+  cfgs: [1]
+  sde_gamma: 0.5
+  sde_gamma_end: 0.0
+  sde_anneal_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: sde_anneal
+  num_sampling_steps: [128]
+  cfgs: [1]
+  sde_gamma: 0.0
+  sde_gamma_end: 0.0
+  sde_anneal_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal

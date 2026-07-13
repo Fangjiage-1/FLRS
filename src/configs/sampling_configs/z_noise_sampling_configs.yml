@@ -1,0 +1,37 @@
+# z-space noise injection:
+#   After each step, add isotropic Gaussian noise directly to z.
+#   Noise decays as (1-t)² → 0 at t→1.
+#   This is the most direct way to maintain diversity — the noise
+#   lives in the same space the model was trained to denoise.
+
+- sampling_method: heun_adaptive
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  heun_tol: 0.05
+  z_noise_scale: 0.05
+  time_schedule: logit_normal
+
+- sampling_method: heun_adaptive
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  heun_tol: 0.05
+  z_noise_scale: 0.1
+  time_schedule: logit_normal
+
+- sampling_method: heun_adaptive
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  heun_tol: 0.05
+  z_noise_scale: 0.2
+  time_schedule: logit_normal
+
+- sampling_method: heun_adaptive
+  num_sampling_steps: [32]
+  cfgs: [1]
+  self_cond_cfg_scales: [3]
+  heun_tol: 0.02
+  z_noise_scale: 0.1
+  time_schedule: logit_normal
