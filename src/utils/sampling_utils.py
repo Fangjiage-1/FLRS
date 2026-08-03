@@ -477,17 +477,24 @@ def _sde_step(
     model, z, t, t_next, x_pred_prev,
     config, cfg_scale, self_cond_cfg_scale,
     cond_seq, cond_seq_mask, gamma, generator,
+    eps=None,
 ):
     """Per-step SDE-style sampler with hybrid (t-and-step) noise scaling.
 
     t_back = t * (1 - gamma * h), where h = t_next - t. alpha = 1 - gamma*h is the
     signal-preservation fraction, constant in t. gamma=0 degenerates to a plain ODE step.
     Uniform-N-step equivalence with old multiplicative gamma_old: gamma_hybrid = gamma_old * N.
+
+    Args:
+        eps: optional pre-generated noise tensor (shape = z.shape, already scaled).
+             When provided, rdandn is skipped — used for reproducible controlled experiments.
     """
     h = float(t_next - t)
     alpha = max(0.0, min(1.0, 1.0 - gamma * h))
     t_back = alpha * float(t)
-    if z.is_cuda:
+    if eps is not None:
+        pass  # use pre-generated noise (already scaled)
+    elif z.is_cuda:
         eps = torch.randn(z.shape, dtype=z.dtype, device=z.device) * config.denoiser_noise_scale
     else:
         eps = torch.randn(z.shape, generator=generator, dtype=z.dtype) * config.denoiser_noise_scale

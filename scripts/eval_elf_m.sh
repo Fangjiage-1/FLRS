@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# ELF-M evaluation: SDE baselines + sde_anneal best configs
+# ELF-M evaluation: SDE baselines and selected FLRS configurations
 # ===========================================================================
 set -euo pipefail
 
 NGPU=${NGPU:-4}
 BATCH_SIZE=${BATCH_SIZE:-4}
 NUM_SAMPLES=${NUM_SAMPLES:-1000}
-SEEDS=${SEEDS:-"42"}
-OUTPUT_DIR=${OUTPUT_DIR:-"outputs/elf_m-owt_eval"}
+SEEDS=${SEEDS:-"42,43,44"}
+OUTPUT_DIR=${OUTPUT_DIR:-"outputs/elf_m-cross_model"}
 CHECKPOINT=${CHECKPOINT:-"embedded-language-flows/ELF-M-owt-torch"}
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -17,7 +17,7 @@ export HF_HUB_OFFLINE=1
 export PYTHONPATH="$REPO_ROOT/src:${PYTHONPATH:-}"
 
 TRAIN_CONFIG="src/configs/training_configs/train_owt_ELF-M.yml"
-SAMPLING_CONFIG="src/configs/sampling_configs/elf_l_sampling_configs.yml"
+SAMPLING_CONFIG="src/configs/sampling_configs/cross_model_sampling_configs.yml"
 
 echo "============================================================"
 echo " ELF-M Evaluation"
@@ -26,6 +26,7 @@ echo " GPUs:               $NGPU"
 echo " Per-GPU batch size: $BATCH_SIZE"
 echo " Global batch size:  $(( NGPU * BATCH_SIZE ))"
 echo " Num samples:        $NUM_SAMPLES"
+echo " Seeds:              $SEEDS"
 echo " Checkpoint:         $CHECKPOINT"
 echo " Output dir:         $OUTPUT_DIR"
 echo "============================================================"
@@ -34,6 +35,7 @@ echo ""
 NGPU="$NGPU" bash scripts/launch.sh eval "$TRAIN_CONFIG" \
     --checkpoint_path "$CHECKPOINT" \
     --seeds "$SEEDS" \
+    --paired_sampling \
     --config_override "global_batch_size=$(( NGPU * BATCH_SIZE ))" \
     --config_override "num_samples=$NUM_SAMPLES" \
     --config_override "output_dir=$OUTPUT_DIR" \

@@ -22,7 +22,7 @@ from utils.sampling_utils import get_sampling_steps
 from utils.generation_utils import (
     mask_after_eos, shift_left,
     _generate_samples_single_batch, _dlm_decode_batch,
-    _build_run_name,
+    _build_run_name, _get_flrs_parameters,
 )
 
 try:
@@ -223,16 +223,17 @@ def test_generation_uncond(
         decode_lns = getattr(sampling_config, "latent_noise_scale", None)
         decode_scn = getattr(sampling_config, "sc_noise_scale", None)
         decode_zn = getattr(sampling_config, "z_noise_scale", None)
-        gamma_end = getattr(sampling_config, "sde_gamma_end", None)
-        anneal_p = getattr(sampling_config, "sde_anneal_power", None)
+        rollback_start, rollback_end, rollback_power = _get_flrs_parameters(sampling_config)
         name = _build_run_name(
             sampling_method, num_sampling_steps, cfg_scale, self_cond_cfg_scale,
             time_schedule, getattr(sampling_config, "sde_gamma", 0.0), suffix="uncond",
             num_langevin=num_langevin, heun_tol=heun_tol,
             decode_temperature=decode_temp, repetition_penalty=decode_rp,
             latent_noise_scale=decode_lns, sc_noise_scale=decode_scn,
-            z_noise_scale=decode_zn, sde_gamma_end=gamma_end,
-            sde_anneal_power=anneal_p,
+            z_noise_scale=decode_zn,
+            rollback_gamma_start=rollback_start,
+            rollback_gamma_end=rollback_end,
+            rollback_power=rollback_power,
         )
 
         out_path = os.path.join(config.output_dir, name, f"all_generated_{epoch_val}_{step_val}.jsonl")
@@ -436,16 +437,17 @@ def test_generation_cond(
         decode_lns = getattr(sampling_config, "latent_noise_scale", None)
         decode_scn = getattr(sampling_config, "sc_noise_scale", None)
         decode_zn = getattr(sampling_config, "z_noise_scale", None)
-        gamma_end = getattr(sampling_config, "sde_gamma_end", None)
-        anneal_p = getattr(sampling_config, "sde_anneal_power", None)
+        rollback_start, rollback_end, rollback_power = _get_flrs_parameters(sampling_config)
         name = _build_run_name(
             sampling_method, num_sampling_steps, cfg_scale, self_cond_cfg_scale,
             time_schedule, getattr(sampling_config, "sde_gamma", 0.0), suffix="cond",
             num_langevin=num_langevin, heun_tol=heun_tol,
             decode_temperature=decode_temp, repetition_penalty=decode_rp,
             latent_noise_scale=decode_lns, sc_noise_scale=decode_scn,
-            z_noise_scale=decode_zn, sde_gamma_end=gamma_end,
-            sde_anneal_power=anneal_p,
+            z_noise_scale=decode_zn,
+            rollback_gamma_start=rollback_start,
+            rollback_gamma_end=rollback_end,
+            rollback_power=rollback_power,
         )
 
         if _rank() == 0:

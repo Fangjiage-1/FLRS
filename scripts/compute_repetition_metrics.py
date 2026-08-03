@@ -1,4 +1,4 @@
-"""Compute mode-collapse detection metrics for generated text samples."""
+"""Compute the paper's RSC/RI repetition diagnostics and auxiliary metrics."""
 import argparse
 import json
 from collections import Counter
@@ -7,6 +7,43 @@ from typing import List
 
 def tokenize(text: str) -> List[str]:
     return text.strip().split()
+
+
+def repeated_span_coverage(texts: List[str], n: int = 5, min_repeats: int = 3) -> float:
+    """Return the fraction of valid windows instantiating repeated n-grams."""
+    total_covered = 0
+    total_windows = 0
+    for text in texts:
+        tokens = tokenize(text)
+        if len(tokens) < n:
+            continue
+        num_windows = len(tokens) - n + 1
+        total_windows += num_windows
+        counts = Counter(
+            tuple(tokens[i:i + n])
+            for i in range(num_windows)
+        )
+        qualifying = {ngram for ngram, count in counts.items() if count >= min_repeats}
+        total_covered += sum(
+            tuple(tokens[i:i + n]) in qualifying
+            for i in range(num_windows)
+        )
+    return total_covered / total_windows if total_windows else 0.0
+
+
+def repetition_incidence(texts: List[str], n: int = 5, min_repeats: int = 3) -> float:
+    """Return the fraction of samples containing a qualifying repeated n-gram."""
+    if not texts:
+        return 0.0
+    affected = 0
+    for text in texts:
+        tokens = tokenize(text)
+        counts = Counter(
+            tuple(tokens[i:i + n])
+            for i in range(max(0, len(tokens) - n + 1))
+        )
+        affected += any(count >= min_repeats for count in counts.values())
+    return affected / len(texts)
 
 
 def distinct_n(texts: List[str], n: int) -> float:
@@ -73,6 +110,11 @@ def main():
 
     texts = texts[:args.n_samples]  # sample first N for consistency
     label = f"[{args.label}] " if args.label else ""
+
+    rsc = repeated_span_coverage(texts)
+    ri = repetition_incidence(texts)
+    print(f"{label}RSC: {rsc:.6f}")
+    print(f"{label}RI: {ri:.6f} ({100 * ri:.2f}%)")
 
     for n in [1, 2, 3, 4]:
         d = distinct_n(texts, n)

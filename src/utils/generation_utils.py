@@ -11,6 +11,29 @@ from utils.sampling_utils import restore_cond, _ode_step, _heun_step, _heun_adap
 # Generation utilities
 # ============================================
 
+def _canonical_sampling_method(method: str) -> str:
+    """Return the public method name while accepting historical configs."""
+    return "flrs" if method == "sde_anneal" else method
+
+
+def _get_flrs_parameters(sampling_config: SamplingConfig):
+    """Read FLRS parameters, with fallbacks for pre-release config names."""
+    fields = vars(sampling_config)
+    gamma_start = float(fields.get(
+        "rollback_gamma_start",
+        fields.get("sde_gamma", 0.0),
+    ))
+    gamma_end = float(fields.get(
+        "rollback_gamma_end",
+        fields.get("sde_gamma_end", 0.0),
+    ))
+    power = float(fields.get(
+        "rollback_power",
+        fields.get("sde_anneal_power", 1.0),
+    ))
+    return gamma_start, gamma_end, power
+
+
 def mask_after_eos(predicted_ids: torch.Tensor, eos_token_id: int, pad_token_id: int) -> torch.Tensor:
     """Mask everything at/after first EOS token per sequence."""
     eos_mask = (predicted_ids == eos_token_id)
@@ -66,7 +89,7 @@ def _generate_samples_single_batch(
     self_cond_cfg_scale: float,
 ) -> torch.Tensor:
     """Generate samples for a single batch (PyTorch Euler / SDE rollout)."""
-    method = sampling_config.sampling_method
+    method = _canonical_sampling_method(sampling_config.sampling_method)
     batch_size, max_length, d_model = z.shape
     if cond_seq is None:
         cond_seq = torch.zeros((batch_size, max_length, d_model), dtype=z.dtype, device=z.device)
@@ -95,16 +118,13 @@ def _generate_samples_single_batch(
                     z=z, t=t, t_next=t_next, x_pred_prev=x_pred,
                     gamma=sde_gamma, generator=generator, **step_kwargs,
                 )
-            elif method == "sde_anneal":
-                gamma_start = sde_gamma
-                gamma_end = float(getattr(sampling_config, 'sde_gamma_end', 0.0))
-                anneal_power = float(getattr(sampling_config, 'sde_anneal_power', 1.0))
-                # gamma(t) = gamma_end + (gamma_start - gamma_end) * (1-t)^p
-                #   p=1: linear decay (fast early, slow near end)
-                #   p=2: quadratic (slow early, fast near end — keeps diversity longer)
-                #   t≈0 → gamma=gamma_start (high noise, diversity)
-                #   t≈1 → gamma=gamma_end   (low noise, clean convergence)
-                gamma_t = gamma_end + (gamma_start - gamma_end) * (1.0 - float(t)) ** anneal_power
+            elif method == "flrs":
+                gamma_start, gamma_end, rollback_power = _get_flrs_parameters(sampling_config)
+                # FLRS schedules the native rollback strength:
+                # gamma(t) = gamma_end + (gamma_start - gamma_end) * (1-t)^p.
+                # This changes the full rollback operator, which couples time
+                # rollback, deterministic contraction, and Gaussian injection.
+                gamma_t = gamma_end + (gamma_start - gamma_end) * (1.0 - float(t)) ** rollback_power
                 z, x_pred = _sde_step(
                     z=z, t=t, t_next=t_next, x_pred_prev=x_pred,
                     gamma=gamma_t, generator=generator, **step_kwargs,
@@ -156,7 +176,7 @@ def _generate_samples_single_batch(
         # Final step (t → 1): use exp for methods that benefit from it, ODE otherwise.
         t = t_steps[-2].item()
         t_next = t_steps[-1].item()
-        if method in ("sde_exp", "pc", "sde_ml", "heun_adaptive", "sde_anneal"):
+        if method in ("sde_exp", "pc", "sde_ml", "heun_adaptive", "flrs"):
             z, x_pred = _exp_step(z=z, t=t, t_next=t_next, x_pred_prev=x_pred, **step_kwargs)
         else:
             z, x_pred = _ode_step(z=z, t=t, t_next=t_next, x_pred_prev=x_pred, **step_kwargs)
@@ -243,15 +263,19 @@ def _build_run_name(sampling_method, num_sampling_steps, cfg_scale, self_cond_cf
                     time_schedule, sde_gamma, suffix, num_langevin=None, heun_tol=None,
                     decode_temperature=None, repetition_penalty=None,
                     latent_noise_scale=None, sc_noise_scale=None, z_noise_scale=None,
-                    sde_gamma_end=None, sde_anneal_power=None):
+                    rollback_gamma_start=None, rollback_gamma_end=None,
+                    rollback_power=None):
+    sampling_method = _canonical_sampling_method(sampling_method)
     ts_str = f"-ts_{time_schedule}"
     sccfg_str = f"-sccfg{self_cond_cfg_scale}" if self_cond_cfg_scale != 1.0 else ""
-    if sampling_method in ("sde", "pc", "sde_exp", "sde_ml", "sde_anneal"):
+    if sampling_method == "flrs":
+        gamma_start = sde_gamma if rollback_gamma_start is None else rollback_gamma_start
+        gamma_end = 0.0 if rollback_gamma_end is None else rollback_gamma_end
+        sde_str = f"-gamma{gamma_start}to{gamma_end}"
+        if rollback_power is not None and rollback_power != 1.0:
+            sde_str += f"p{rollback_power}"
+    elif sampling_method in ("sde", "pc", "sde_exp", "sde_ml"):
         sde_str = f"-gamma{sde_gamma}"
-        if sampling_method == "sde_anneal" and sde_gamma_end is not None:
-            sde_str += f"to{sde_gamma_end}"
-            if sde_anneal_power is not None and sde_anneal_power != 1.0:
-                sde_str += f"p{sde_anneal_power}"
     else:
         sde_str = ""
     ml_str = f"-m{num_langevin}" if num_langevin is not None and sampling_method == "sde_ml" else ""

@@ -1,0 +1,45 @@
+# 128-step FLRS sweep: boundary behavior and rollback-strength sensitivity.
+- sampling_method: flrs
+  num_sampling_steps: [128]
+  cfgs: [1]
+  rollback_gamma_start: 2.0
+  rollback_gamma_end: 0.0
+  rollback_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: flrs
+  num_sampling_steps: [128]
+  cfgs: [1]
+  rollback_gamma_start: 1.5
+  rollback_gamma_end: 0.0
+  rollback_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: flrs
+  num_sampling_steps: [128]
+  cfgs: [1]
+  rollback_gamma_start: 1.0
+  rollback_gamma_end: 0.0
+  rollback_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: flrs
+  num_sampling_steps: [128]
+  cfgs: [1]
+  rollback_gamma_start: 0.5
+  rollback_gamma_end: 0.0
+  rollback_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal
+
+- sampling_method: flrs
+  num_sampling_steps: [128]
+  cfgs: [1]
+  rollback_gamma_start: 0.0
+  rollback_gamma_end: 0.0
+  rollback_power: 1
+  self_cond_cfg_scales: [3]
+  time_schedule: logit_normal

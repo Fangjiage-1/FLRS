@@ -22,6 +22,9 @@ class SamplingConfig:
     self_cond_cfg_scales: list = [1.0]
     time_schedule: str = "logit_normal"  # 'logit_normal' or 'uniform'
     sde_gamma: float = 0.0  # Per-step SDE churn fraction; 0.0 -> pure ODE. Used when sampling_method == "sde".
+    rollback_gamma_start: float = 0.0  # FLRS rollback strength at the start of sampling.
+    rollback_gamma_end: float = 0.0  # FLRS rollback strength at the end of sampling.
+    rollback_power: float = 1.0  # Exponent p in the FLRS schedule.
 
 
 # ============================================

@@ -43,6 +43,10 @@ def parse_args():
                         help="Path to checkpoint file (e.g. outputs/elf_b-owt/checkpoint_19000) or HF repo id.")
     parser.add_argument("--use_cpu", action="store_true",
                         help="Force CPU even when CUDA is available.")
+    parser.add_argument(
+        "--paired_sampling", action="store_true",
+        help="Reset RNG state before every sampler so methods share initial randomness.",
+    )
     return parser.parse_args()
 
 
@@ -97,6 +101,7 @@ def main():
 
     seed_list = [int(s.strip()) for s in args.seeds.split(",")] if args.seeds is not None else [args.seed]
     log_for_0(f"Seeds to evaluate: {seed_list}")
+    log_for_0(f"Paired sampling: {args.paired_sampling}")
 
     log_for_0("Loading tokenizer...")
     tokenizer = AutoTokenizer.from_pretrained(config.tokenizer_name or config.encoder_model_name)
@@ -173,6 +178,11 @@ def main():
         for sc_idx, sc in enumerate(config.sampling_configs):
             if len(config.sampling_configs) > 1:
                 log_for_0(f"\n--- Sampling config {sc_idx + 1}/{len(config.sampling_configs)} ---")
+            if args.paired_sampling:
+                seed_gen = torch.Generator(device="cpu").manual_seed(per_rank_seed)
+                torch.manual_seed(per_rank_seed)
+                if torch.cuda.is_available():
+                    torch.cuda.manual_seed_all(per_rank_seed)
             common_kwargs = dict(
                 state=state, tokenizer=tokenizer, generator=seed_gen,
                 config=config, sampling_config=sc,
