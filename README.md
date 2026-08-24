@@ -11,8 +11,8 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 [Overview](#overview) ·
-[Results](#results-at-a-glance) ·
-[Installation](#installation) ·
+[Results](#results) ·
+[Installation](#install) ·
 [Quick Start](#quick-start) ·
 [Reproduction](#reproducing-the-main-comparisons) ·
 [Code Map](#code-map)
@@ -45,33 +45,54 @@ contraction, and Gaussian injection. It should therefore be interpreted as a
 schedule over the complete native rollback transition, rather than as an
 isolated post-hoc noise scale.
 
+<a id="results"></a>
+
 ## Results at a glance
 
-<div align="center">
-
 | NFE budget | Fixed Rollback | FLRS | Relative improvement |
-|:----------:|:--------------:|:-----------:|:--------------------:|
+|:----------:|:--------------:|:----:|:--------------------:|
 | **32** | 23.75 | **21.47** | **↓ 9.6%** |
 | **64** | 19.22 | **15.71** | **↓ 18.3%** |
 
-<sub>Generative PPL on ELF-B using GPT-2 Large. Lower is better.</sub>
+<p align="center">
+  <sub>Generative PPL on ELF-B using GPT-2 Large. Lower is better.</sub>
+</p>
 
-<br><br>
+<p align="center">
+  <img
+    src="assets/main_comparison.png"
+    alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
+    width="900"
+  >
+</p>
 
-<img
-  src="assets/main_comparison.png"
-  alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
-  width="900"
->
+<p align="center">
+  <sub>
+    Comparison under matched 32- and 64-NFE budgets.
+    FLRS changes only the rollback-strength schedule.
+  </sub>
+</p>
 
-<br>
+### Rollback schedule comparison
 
-<sub>
-Comparison under matched 32- and 64-NFE budgets.
-FLRS changes only the rollback-strength schedule.
-</sub>
+| Schedule | Amplitude A | PPL ↓ | Entropy ↑ | RSC ↓ | RI (%) ↓ |
+|:--|--:|--:|--:|--:|--:|
+| Fixed Reference | 1.000 | 18.55 ± 1.39 | 5.07 ± 0.04 | 0.0373 ± 0.0116 | 79.3 |
+| Late-Linear Rollback | 3.419 ± 0.628 | 21.75 ± 1.48 | **5.10 ± 0.03** | **0.0342 ± 0.0103** | **73.3** |
+| Energy-Matched Fixed | 1.319 ± 0.118 | 16.99 ± 1.20 | 5.04 ± 0.04 | 0.0413 ± 0.0119 | 83.4 |
+| FLRS-Linear | **2.000** | 15.05 ± 1.11 | 4.99 ± 0.04 | 0.0504 ± 0.0149 | 88.1 |
+| FLRS-Quadratic | 2.719 ± 0.244 | **13.49 ± 1.40** | 4.94 ± 0.05 | 0.0636 ± 0.0210 | 91.7 |
 
-</div>
+<p align="center">
+  <sub>
+    Comparison of rollback schedules on ELF-B. Values are reported as
+    mean ± standard deviation where applicable. Arrows indicate the preferred
+    direction of each metric.
+  </sub>
+</p>
+
+<a id="install"></a>
+
 ## Installation
 
 ```bash
@@ -161,11 +182,12 @@ python scripts/compute_repetition_metrics.py \
 The script reports repetition incidence (RI) and repeated-window coverage
 (RSC) using the shared event "a 5-gram occurs at least three times."
 
-
 <p align="center">
-  <img src="assets/quality_repetition_tradeoff.png"
-       alt="Generative perplexity and repeated-span coverage across rollback schedules and NFE budgets"
-       width="950">
+  <img
+    src="assets/quality_repetition_tradeoff.png"
+    alt="Generative perplexity and repeated-span coverage across rollback schedules and NFE budgets"
+    width="950"
+  >
 </p>
 
 <p align="center">
@@ -228,4 +250,3 @@ The repository is derived from the MIT-licensed ELF PyTorch implementation.
 The original ELF portions retain their upstream copyright notice; the FLRS
 implementation and accompanying experiment code are modifications released
 under the same license.
-
