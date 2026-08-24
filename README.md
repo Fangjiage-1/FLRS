@@ -150,6 +150,3 @@ The original ELF portions retain their upstream copyright notice; the FLRS
 implementation and accompanying experiment code are modifications released
 under the same license.
 
-For double-blind review, the FLRS copyright holder is written as
-`Anonymous Authors`. Replace that placeholder with the actual copyright
-holder only when preparing the public release after the review process.
