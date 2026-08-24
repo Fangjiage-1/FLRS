@@ -1,30 +1,77 @@
+<div align="center">
+
 # FLRS: Front-Loaded Rollback Sampling for ELF
 
-This repository contains the PyTorch implementation and evaluation code for
-**Front-Loaded Rollback Sampling (FLRS)**. FLRS is training-free: it keeps the
-ELF checkpoint, time grid, decoder, and number of network evaluations fixed,
-and changes only the rollback-strength schedule used by the released sampler.
+### Allocate rollback strength where it matters most.
 
-FLRS schedules the full native rollback operator. The coefficient therefore
-jointly affects time rollback, deterministic contraction, and Gaussian
-injection; it should not be interpreted as an isolated post-hoc noise scale.
+[![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-Implementation-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![Training Free](https://img.shields.io/badge/Training--Free-22A699)](#overview)
+[![Compute Matched](https://img.shields.io/badge/Evaluation-Compute--Matched-7B61FF)](#reproducing-the-main-comparisons)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+[Overview](#overview) ·
+[Results](#results-at-a-glance) ·
+[Installation](#installation) ·
+[Quick Start](#quick-start) ·
+[Reproduction](#reproducing-the-main-comparisons) ·
+[Code Map](#code-map)
+
+</div>
+
+---
+
+## Overview
+
+> **TL;DR:** FLRS requires no training, no checkpoint modification, and no
+> additional network evaluations, while improving generative PPL by
+> **9.6% at 32 NFE** and **18.3% at 64 NFE** over fixed rollback on ELF-B.
+
+This repository contains the PyTorch implementation and evaluation code for
+**Front-Loaded Rollback Sampling (FLRS)**.
+
+FLRS keeps the ELF checkpoint, time grid, decoder, and number of network
+evaluations fixed. The only change is the temporal schedule of the native
+rollback operator:
+
+<div align="center">
+
+**same model · same compute · better rollback allocation**
+
+</div>
+
+The rollback coefficient jointly controls time rollback, deterministic
+contraction, and Gaussian injection. It should therefore be interpreted as a
+schedule over the complete native rollback transition, rather than as an
+isolated post-hoc noise scale.
 
 ## Results at a glance
 
-<p align="center">
-  <img src="assets/main_comparison.png"
-       alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
-       width="900">
-</p>
+<div align="center">
 
-<p align="center">
-  <sub>
-    Generative PPL on ELF-B under matched 32- and 64-NFE budgets.
-    FLRS-Linear improves over fixed rollback by 9.6% and 18.3%, respectively.
-    Lower is better.
-  </sub>
-</p>
+| NFE budget | Fixed Rollback | FLRS | Relative improvement |
+|:----------:|:--------------:|:-----------:|:--------------------:|
+| **32** | 23.75 | **21.47** | **↓ 9.6%** |
+| **64** | 19.22 | **15.71** | **↓ 18.3%** |
 
+<sub>Generative PPL on ELF-B using GPT-2 Large. Lower is better.</sub>
+
+<br><br>
+
+<img
+  src="assets/main_comparison.png"
+  alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
+  width="900"
+>
+
+<br>
+
+<sub>
+Comparison under matched 32- and 64-NFE budgets.
+FLRS changes only the rollback-strength schedule.
+</sub>
+
+</div>
 ## Installation
 
 ```bash
