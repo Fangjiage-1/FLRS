@@ -9,6 +9,22 @@ FLRS schedules the full native rollback operator. The coefficient therefore
 jointly affects time rollback, deterministic contraction, and Gaussian
 injection; it should not be interpreted as an isolated post-hoc noise scale.
 
+## Results at a glance
+
+<p align="center">
+  <img src="assets/main_comparison.pdf"
+       alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
+       width="900">
+</p>
+
+<p align="center">
+  <sub>
+    Generative PPL on ELF-B under matched 32- and 64-NFE budgets.
+    FLRS-Linear improves over fixed rollback by 9.6% and 18.3%, respectively.
+    Lower is better.
+  </sub>
+</p>
+
 ## Installation
 
 ```bash
@@ -97,6 +113,22 @@ python scripts/compute_repetition_metrics.py \
 
 The script reports repetition incidence (RI) and repeated-window coverage
 (RSC) using the shared event "a 5-gram occurs at least three times."
+
+
+<p align="center">
+  <img src="assets/quality_repetition_tradeoff.pdf"
+       alt="Generative perplexity and repeated-span coverage across rollback schedules and NFE budgets"
+       width="950">
+</p>
+
+<p align="center">
+  <sub>
+    Quality–repetition trade-off on ELF-B. Left: comparison of rollback
+    schedules under matched compute. Right: generative PPL and repeated-span
+    coverage as the sampling budget increases. Lower is better for both
+    generative PPL and RSC.
+  </sub>
+</p>
 
 Summarize one model's paired runs with:
 
