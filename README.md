@@ -225,12 +225,35 @@ early experiments may use `sde_anneal`, `sde_gamma`, `sde_gamma_end`, and
 `sde_anneal_power`; these names remain accepted only as legacy input aliases.
 New output directories and configurations always use the FLRS terminology.
 
-## Scope
+## Scope and transferability
 
-The included implementation is specific to ELF's rollback operator. Applying
-the broader temporal-allocation principle to a model family without this
-operator requires a newly defined transition and separate compute-matched
-validation.
+> [IMPORTANT]
+> **This implementation is not directly compatible with arbitrary model
+> families.** FLRS is tightly coupled to ELF's native rollback operator.
+> Copying the current sampler into a model that does not provide an analogous
+> operator will not work without additional algorithmic design.
+
+FLRS separates into two levels:
+
+- **Transferable principle:** allocate a stronger rollback intervention during
+  the early stages of sampling and gradually reduce it toward the end.
+- **ELF-specific implementation:** realize this schedule through ELF's native
+  rollback-and-advance transition, which jointly controls time rollback,
+  deterministic contraction, and Gaussian injection.
+
+To apply the temporal-allocation principle to another model family, one must:
+
+1. **Define a compatible transition.** The target model needs a newly designed
+   rollback, correction, or perturbation operator that specifies how its state
+   evolves under the scheduled intervention.
+2. **Integrate the schedule into the sampler.** The intervention strength must
+   be mapped to the target model's sampling dynamics; the ELF implementation
+   cannot simply be copied unchanged.
+3. **Perform compute-matched validation.** Comparisons must use equivalent
+   computational budgets—such as matched network function evaluations
+   (NFEs)—to distinguish gains from temporal allocation from gains caused by
+   additional computation.
+
 
 ## License
 
