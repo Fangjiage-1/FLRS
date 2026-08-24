@@ -12,7 +12,7 @@ injection; it should not be interpreted as an isolated post-hoc noise scale.
 ## Results at a glance
 
 <p align="center">
-  <img src="assets/main_comparison.pdf"
+  <img src="assets/main_comparison.png"
        alt="Comparison of FLRS with fixed rollback, deterministic solvers, and hybrid samplers on ELF-B"
        width="900">
 </p>
@@ -116,7 +116,7 @@ The script reports repetition incidence (RI) and repeated-window coverage
 
 
 <p align="center">
-  <img src="assets/quality_repetition_tradeoff.pdf"
+  <img src="assets/quality_repetition_tradeoff.png"
        alt="Generative perplexity and repeated-span coverage across rollback schedules and NFE budgets"
        width="950">
 </p>
