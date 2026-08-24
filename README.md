@@ -32,13 +32,8 @@ This repository contains the PyTorch implementation and evaluation code for
 
 FLRS keeps the ELF checkpoint, time grid, decoder, and number of network
 evaluations fixed. The only change is the temporal schedule of the native
-rollback operator:
+rollback operator:  **same model · same compute · better rollback allocation**
 
-<div align="center">
-
-**same model · same compute · better rollback allocation**
-
-</div>
 
 The rollback coefficient jointly controls time rollback, deterministic
 contraction, and Gaussian injection. It should therefore be interpreted as a
@@ -48,11 +43,6 @@ isolated post-hoc noise scale.
 <a id="results"></a>
 
 ## Results at a glance
-
-| NFE budget | Fixed Rollback | FLRS | Relative improvement |
-|:----------:|:--------------:|:----:|:--------------------:|
-| **32** | 23.75 | **21.47** | **↓ 9.6%** |
-| **64** | 19.22 | **15.71** | **↓ 18.3%** |
 
 <p align="center">
   <sub>Generative PPL on ELF-B using GPT-2 Large. Lower is better.</sub>
