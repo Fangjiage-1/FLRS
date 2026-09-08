@@ -1,5 +1,5 @@
 <div align="center">  
-  
+    
 # FLRS: Front-Loaded Rollback Sampling for ELF
    
 ### Allocate rollback strength where it matters most.
