@@ -2,7 +2,7 @@
     
 # FLRS: Front-Loaded Rollback Sampling for ELF  
 
-### Allocate rollback strength where it matters most.
+### Allocate rollback strength where it matters most.  
 
 [![Python](https://img.shields.io/badge/Python-3.10-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-Implementation-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
