@@ -12,7 +12,7 @@
 
 [Overview](#overview) ·
 [Results](#results) ·
-[Installation](#install) ·
+[Installation](#install) · 
 [Quick Start](#quick-start) ·
 [Reproduction](#reproducing-the-main-comparisons) ·
 [Code Map](#code-map)
